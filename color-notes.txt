@@ -1,0 +1,50 @@
+see the following link for RGB and HSV stuff
+http://docs.opencv.org/trunk/df/d9d/tutorial_py_colorspaces.html
+
+My initial attempts with RGB bounds
+ red    =  ([90, 90, 180], [120, 120, 255])
+ green  =  ([90, 100, 90], [150, 255, 150])
+ blue   =  ([60, 30, 30], [255, 150, 150])
+ aqua   =  ([180, 180, 90], [255, 255, 120])
+ purple =  ([180, 90, 180], [255, 120, 255])
+ yellow =  ([90, 180, 180], [120, 255, 255])
+
+HSV
+these are the values according to the cv library for RGBAPY, respectively
+Note: these are values using full brightness in RGB
+ [[[  0 255 255]]]
+ [[[ 60 255 255]]]
+ [[[120 255 255]]]
+ [[[ 90 255 255]]]
+ [[[150 255 255]]]
+ [[[ 30 255 255]]]
+
+results with these:
+ R - perfect, except for picking up skin
+ G - it seems to not like dark green
+ B - pretty awesome
+ A - seems fine, afaict
+ P - expects colors too light; picks up pink but not "dark" purple
+ Y - needs "darker" yellow
+
+I had to substitute based on the following values (GBR)
+g: [  0, 180,   0] gave [[[ 60 255 180]]]
+p: [175,   0, 125] gave [[[141 255 175]]]
+y: [  0, 200, 200] gave [[[ 30 255 200]]]
+I also took the original purple and named it pink, and added orange:
+o: [0, 122, 204] gave [102 255 204]
+I took an "orange" color that worked for aqua and used it
+
+after imports, I just used this line for grabbing values,
+substituting the color values as needed
+print cv2.cvtColor(np.uint8([[[0, 200, 200]]]), cv2.COLOR_BGR2HSV)
+[142 255 200]
+[ 18 255 204]
+
+final adjustments:
+red: increase the minimum Value, to reduce noise due to skin
+green: darken it
+purple: darken it
+pink: it's the original purple
+yellow: allow darker yellow
+and some calibration
