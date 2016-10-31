@@ -47,6 +47,11 @@ def scale((x, y)):
     #outputY =  scaleX * (inputX / webcamX)
     #outputY = scaleY * (inputY / webcamY)
 
+    #note: this might have an issue if the origin (x, y) is in a
+    #different corner
+    # x increases left to right
+    # y increases top to bottom
+    # for the webcam, (0, 0) is in the top left corner
     outputX = int(scaleX * ((x*1.0)/(webcamX*1.0)))
     outputY = int(scaleY * ((y*1.0)/(webcamY*1.0)))
     return (outputX, outputY)
@@ -56,7 +61,7 @@ def scale((x, y)):
 # see color-notes.txt for the explanation of the colors below.
 colors = {
     "r" :  ([  0, 100, 120], [ 10, 255, 255]),
-    "g" :  ([ 50, 100,  20], [ 70, 255, 255]),
+    "g" :  ([ 60, 100,  20], [ 90, 255, 255]),
     "b" :  ([110, 100, 100], [130, 255, 255]),
     "a" :  ([ 90, 100,  50], [110, 255, 255]),
     "p" :  ([130, 100,  50], [150, 255, 175]),
@@ -93,7 +98,7 @@ t_minus = cv.cvtColor(webcam.read()[1], cv.COLOR_RGB2GRAY)
 t = cv.cvtColor(webcam.read()[1], cv.COLOR_RGB2GRAY)
 t_plus = cv.cvtColor(webcam.read()[1], cv.COLOR_RGB2GRAY)
 
-webcamX, webcamY = t.shape[:2]
+webcamY, webcamX = t.shape[:2]
 print "Using webcam dimensions: %dx%d" %(webcamX, webcamY)
 print "Scaling to dimensions: %dx%d" %(scaleX, scaleY)
 
@@ -134,6 +139,9 @@ while True:
     cv.circle(maskedFrame, maxLoc, 4, (0, 255, 0), 5)
     cv.circle(maskedFrame, jump, 4, (255, 255, 255), 5)
     print "_"*75
+    print "Relevant area 1:", maxLoc
+    print "Relevant area 2:", jump
+    
     print "Area of most motion", scale(maxLoc)
     print "Denoised area of most motion", scale(jump)
     print "_"*75
