@@ -32,6 +32,26 @@ def coordinates((x, y)):
     prevLocation = (x, y)
     return x, y
 
+#this function scales points to match what's needed.
+scaleX = 1000
+scaleY = 1000
+webcamX = 0
+webcamY = 0
+
+def scale((x, y)):
+    #ratio
+    #inputX / webcamX = outputY / scaleX
+    #inputY / webcamY = outputY / scaleY
+
+    #solving, 
+    #outputY =  scaleX * (inputX / webcamX)
+    #outputY = scaleY * (inputY / webcamY)
+
+    outputX = int(scaleX * ((x*1.0)/(webcamX*1.0)))
+    outputY = int(scaleY * ((y*1.0)/(webcamY*1.0)))
+    return (outputX, outputY)
+    
+
 
 # see color-notes.txt for the explanation of the colors below.
 colors = {
@@ -73,6 +93,10 @@ t_minus = cv.cvtColor(webcam.read()[1], cv.COLOR_RGB2GRAY)
 t = cv.cvtColor(webcam.read()[1], cv.COLOR_RGB2GRAY)
 t_plus = cv.cvtColor(webcam.read()[1], cv.COLOR_RGB2GRAY)
 
+webcamX, webcamY = t.shape[:2]
+print "Using webcam dimensions: %dx%d" %(webcamX, webcamY)
+print "Scaling to dimensions: %dx%d" %(scaleX, scaleY)
+
 #window reference and title
 capture = "Color Motion Tracker"
 #make a window
@@ -109,6 +133,11 @@ while True:
 
     cv.circle(maskedFrame, maxLoc, 4, (0, 255, 0), 5)
     cv.circle(maskedFrame, jump, 4, (255, 255, 255), 5)
+    print "_"*75
+    print "Area of most motion", scale(maxLoc)
+    print "Denoised area of most motion", scale(jump)
+    print "_"*75
+    print
 
     #show the frame
     cv.imshow(capture, maskedFrame)
