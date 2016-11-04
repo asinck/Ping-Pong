@@ -1,8 +1,3 @@
-#the original of this program is in ~/programming/python/gui/colorTracker.py
-
-
-#this program should control the mouse based on motion.
-
 import cv2 as cv
 import numpy as np
 import time
@@ -16,7 +11,6 @@ def diffImg(t0, t1, t2):
     d1 = cv.absdiff(t2, t1)
     d2 = cv.absdiff(t1, t0)
     return cv.bitwise_or(d1, d2)
-
 
 prevLocation = None
 #this function returns coordinates. if the provided coordinates are
@@ -38,92 +32,70 @@ def coordinates((x, y)):
     prevLocation = (x, y)
     return x, y
 
+#this function scales points to match what's needed.
+scaleX = 1000
+scaleY = 1000
+webcamX = 0
+webcamY = 0
 
-#see the following link for RGB and HSV stuff
-#http://docs.opencv.org/trunk/df/d9d/tutorial_py_colorspaces.html
+def scale((x, y)):
+    #ratio
+    #inputX / webcamX = outputY / scaleX
+    #inputY / webcamY = outputY / scaleY
 
-#My initial attempts with RGB bounds
-# red    =  ([90, 90, 180], [120, 120, 255])
-# green  =  ([90, 100, 90], [150, 255, 150])
-# blue   =  ([60, 30, 30], [255, 150, 150])
-# aqua   =  ([180, 180, 90], [255, 255, 120])
-# purple =  ([180, 90, 180], [255, 120, 255])
-# yellow =  ([90, 180, 180], [120, 255, 255])
+    #solving, 
+    #outputY =  scaleX * (inputX / webcamX)
+    #outputY = scaleY * (inputY / webcamY)
 
-#HSV
-#these are the values according to the cv library for RGBAPY, respectively
-#Note: these are values using full brightness in RGB
-# [[[  0 255 255]]]
-# [[[ 60 255 255]]]
-# [[[120 255 255]]]
-# [[[ 90 255 255]]]
-# [[[150 255 255]]]
-# [[[ 30 255 255]]]
+    outputX = int(scaleX * ((x*1.0)/(webcamX*1.0)))
+    outputY = int(scaleY * ((y*1.0)/(webcamY*1.0)))
+    return (outputX, outputY)
+    
 
-#results with these:
-# R - perfect, except for picking up skin
-# G - it seems to not like dark green
-# B - pretty awesome
-# A - seems fine, afaict
-# P - expects colors too light; picks up pink but not "dark" purple
-# Y - needs "darker" yellow
 
-#I had to substitute based on the following values (GBR)
-#g: [  0, 180,   0] gave [[[ 60 255 180]]]
-#p: [175,   0, 125] gave [[[141 255 175]]]
-#y: [  0, 200, 200] gave [[[ 30 255 200]]]
-#I also took the original purple and named it pink, and added orange:
-#o: [0, 122, 204] gave [102 255 204]
-#I took an "orange" color that worked for aqua and used it
-
-#after imports, I just used this line for grabbing values,
-#substituting the color values as needed
-#print cv2.cvtColor(np.uint8([[[0, 200, 200]]]), cv2.COLOR_BGR2HSV)
-#[142 255 200]
-#[ 18 255 204]
+# see color-notes.txt for the explanation of the colors below.
 colors = {
-"r" :  ([  0, 100, 120], [ 10, 255, 255]),
-"g" :  ([ 50, 100,  20], [ 70, 255, 255]),
-"b" :  ([110, 100, 100], [130, 255, 255]),
-"a" :  ([ 90, 100,  50], [110, 255, 255]),
-"p" :  ([130, 100,  50], [150, 255, 175]),
-"i" :  ([140, 100, 100], [160, 255, 255]),
-"y" :  ([ 10, 100,  50], [ 40, 255, 255]),
-"o" :  ([  5, 100,  00], [ 20, 255, 214])
+    "r" :  ([  0, 100, 120], [ 10, 255, 255]),
+    "g" :  ([ 50, 100,  20], [ 70, 255, 255]),
+    "b" :  ([110, 100, 100], [130, 255, 255]),
+    "a" :  ([ 90, 100,  50], [110, 255, 255]),
+    "p" :  ([130, 100,  50], [150, 255, 175]),
+    "i" :  ([140, 100, 100], [160, 255, 255]),
+    "y" :  ([ 10, 100,  50], [ 40, 255, 255]),
+    "o" :  ([  5, 100,  00], [ 20, 255, 214])
 }
-#final adjustments:
-#red: increase the minimum Value, to reduce noise due to skin
-#green: darken it
-#purple: darken it
-#pink: it's the original purple
-#yellow: allow darker yellow
-#and some calibration
 
 colorFilter = colors['r']
 lower = np.array(colorFilter[0])
 upper = np.array(colorFilter[1])
 
 #connect to the webcam
+
+#this is to allow the user to choose what webcam they want if they
+#have multiple webcams plugged in
 num = raw_input("webcam number?  ")
 webcam = None
 try:
     webcam = cv.VideoCapture(int(num)-1)
 except:
-    print "Enter a number."
+    print "Enter webcam number."
     exit(1)
-    
-#webcam = cv.VideoCapture(0)
 
-# Read three images first:
+#make sure it's a valid webcam
 try:
     cv.cvtColor(webcam.read()[1], cv.COLOR_RGB2GRAY)
 except:
     print "\nError: Could not read data from webcam %s. Is it plugged in?\n" %num
     exit(1)
 
+# Read three images first:
 t_minus = cv.cvtColor(webcam.read()[1], cv.COLOR_RGB2GRAY)
 t = cv.cvtColor(webcam.read()[1], cv.COLOR_RGB2GRAY)
 t_plus = cv.cvtColor(webcam.read()[1], cv.COLOR_RGB2GRAY)
+
+webcamX, webcamY = t.shape[:2]
+print "Using webcam dimensions: %dx%d" %(webcamX, webcamY)
+print "Scaling to dimensions: %dx%d" %(scaleX, scaleY)
 
 #window reference and title
 capture = "Color Motion Tracker"
@@ -161,6 +133,11 @@ while True:
 
     cv.circle(maskedFrame, maxLoc, 4, (0, 255, 0), 5)
     cv.circle(maskedFrame, jump, 4, (255, 255, 255), 5)
+    print "_"*75
+    print "Area of most motion", scale(maxLoc)
+    print "Denoised area of most motion", scale(jump)
+    print "_"*75
+    print
 
     #show the frame
     cv.imshow(capture, maskedFrame)
