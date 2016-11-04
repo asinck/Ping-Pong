@@ -1,7 +1,12 @@
 print "Loading, please wait..."
 
 #first, import the matlab engine
-import matlab.engine
+try:
+    import matlab.engine
+except:
+    print "Please install the matlab package before running this program. See"
+    print "https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html"
+    exit(1)
 #start the engine
 eng = matlab.engine.start_matlab()
 #run the test program
@@ -9,6 +14,8 @@ status = eng.grapher("1")
 #output the returned value
 print status
 
+#this is so the program doesn't immediatly exit after showing the
+#graph for a moment
 raw_input("Press enter to exit program.")
 
 
