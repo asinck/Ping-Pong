@@ -33,17 +33,20 @@ for i in imports:
         failedPackages += str(error) + '\n'
 
 #if there were any errors in the imports, tell the user what packages
-#didn't import, and exit.
+#didn't import
 if len(failedPackages) > 0:
-    print "Some packages could not be imported:"
-    print failedPackages
-    print "Please install these packages before continuing."
+    print("\nSome packages could not be imported:")
+    print(failedPackages)
+    print("Please install these packages before continuing.")
+    if (failed):
+        print("\nNote: Using python 3 may cause import errors. Please")
+        print("run this test program again with python 2.7.")
     if ("matlab" in failedPackages):
-        print "\nNote: For the matlab package, see"
-        print "https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html"
+        print("\nNote: For the matlab package, see")
+        print("https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html\n")
         failed = True
 else:
-    print "All dependencies satisfied."
+    print("All dependencies satisfied.")
 
 
 if (failed):
