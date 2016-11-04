@@ -7,7 +7,8 @@ imports = [
     "import cv2 as cv",
     "import numpy as np",
     "import time",
-    "import math"
+    "import math",
+    "import matlab.engine"
 ]
 #failedPackages will keep a record of the names of the packages that
 #failed to import, so that the program can go through the entire list
@@ -25,7 +26,11 @@ for i in imports:
 if len(failedPackages) > 0:
     print "Some packages could not be imported:"
     print failedPackages
-    print "\nPlease install these packages before running any of the webcam programs.\n"
+    print "\nPlease install these packages before continuing.\n"
+    if ("matlab" in failedPackages):
+        print "\nNote: For the matlab package, see"
+        print "https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html"
+        print "\n"
     exit(1)
 
 else:
