@@ -1,7 +1,17 @@
 #!/usr/bin/env python
 
-#this is a list of import commands. If the user doesn't have Tkinter
-#or other libraries installed, it will fail gracefully instead of
+#this is to keep track of if the user has the right configuration
+failed = False
+
+try:
+    command = 'print "Correct python version."'
+    exec(command)
+except:
+    print("Please use python 2.7.")
+    failed = True
+
+#this is a list of import commands. If the user doesn't have the
+#correct libraries installed, it will fail gracefully instead of
 #crashing.
 imports = [
     "import cv2 as cv",
@@ -21,17 +31,21 @@ for i in imports:
         exec(i)
     except ImportError as error:
         failedPackages += str(error) + '\n'
+
 #if there were any errors in the imports, tell the user what packages
 #didn't import, and exit.
 if len(failedPackages) > 0:
     print "Some packages could not be imported:"
     print failedPackages
-    print "\nPlease install these packages before continuing.\n"
+    print "Please install these packages before continuing."
     if ("matlab" in failedPackages):
         print "\nNote: For the matlab package, see"
         print "https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html"
-        print "\n"
-    exit(1)
-
+        failed = True
 else:
     print "All dependencies satisfied."
+
+
+if (failed):
+    exit(1)
+
