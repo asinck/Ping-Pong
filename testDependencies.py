@@ -30,7 +30,7 @@ if len(failedPackages) > 0:
     if ("matlab" in failedPackages):
         print "\nNote: For the matlab package, see"
         print "https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html"
-        print \n
+        print "\n"
     exit(1)
 
 else:
