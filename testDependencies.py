@@ -17,8 +17,7 @@ imports = [
     "import cv2 as cv",
     "import numpy as np",
     "import time",
-    "import math",
-    "import matlab.engine"
+    "import math"
 ]
 #failedPackages will keep a record of the names of the packages that
 #failed to import, so that the program can go through the entire list
@@ -40,10 +39,7 @@ if len(failedPackages) > 0:
     print("Please install these packages before continuing.")
     if (failed):
         print("\nNote: Using python 3 may cause import errors. Please")
-        print("run this test program again with python 2.7.")
-    if ("matlab" in failedPackages):
-        print("\nNote: For the matlab package, see")
-        print("https://www.mathworks.com/help/matlab/matlab_external/install-the-matlab-engine-for-python.html\n")
+        print("run this test program again with python 2.7.\n")
         failed = True
 else:
     print("All dependencies satisfied.")
