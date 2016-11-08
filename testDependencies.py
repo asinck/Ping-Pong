@@ -17,7 +17,8 @@ imports = [
     "import cv2 as cv",
     "import numpy as np",
     "import time",
-    "import math"
+    "import math",
+    "import RPi.GPIO as GPIO"
 ]
 #failedPackages will keep a record of the names of the packages that
 #failed to import, so that the program can go through the entire list
