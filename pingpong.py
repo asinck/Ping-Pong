@@ -146,6 +146,7 @@ def trajectory((x, y)):
 
     right now this just returns its input
     """
+    predFrames = 1
     rotateHistory((x,y))
     deltaSum = (0,0)
     if (len(history)>1):
@@ -155,6 +156,8 @@ def trajectory((x, y)):
             deltaN = tuple(np.subtract(history[i+1], history[i]))
             # add it to the sum
             deltaSum = tuple(np.add(deltaSum, deltaN))
+        # multiply the delta by how many frames we want to look ahead
+        deltaSum = tuple(np.multiply( deltaSum, (predFrames, predFrames) ))
         # get the final average
         deltaSum = tuple(np.divide( deltaSum, (len(history)-1,len(history)-1) ))
     return tuple(np.add(deltaSum, (x, y)))
