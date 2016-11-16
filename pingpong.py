@@ -149,7 +149,7 @@ def trajectory((x, y)):
     rotateHistory((x,y))
     deltaSum = (0,0)
     for i in range(0,len(history)):
-        deltaN = tuple(np.subtract(history[i], history[len(history)-1]))
+        deltaN = tuple(np.subtract(history[len(history)-1], history[i]))
         deltaSum = tuple(np.add(deltaSum, deltaN))
     deltaSum = (deltaSum[0]/len(history),deltaSum[1]/len(history))
     return tuple(np.add(deltaSum, (x, y)))
