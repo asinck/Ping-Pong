@@ -148,14 +148,15 @@ def trajectory((x, y)):
     """
     rotateHistory((x,y))
     deltaSum = (0,0)
-    # find the sum of differences between frames
-    for i in range(0,len(history)-1):
-        # find the difference between the ith frame and the next
-        deltaN = tuple(np.subtract(history[i+1], history[i]))
-        # add it to the sum
-        deltaSum = tuple(np.add(deltaSum, deltaN))
-    # get the final average. currently derped
-    deltaSum = (deltaSum[0]/len(history),deltaSum[1]/len(history))
+    if (len(history)>1):
+        # find the sum of differences between frames
+        for i in range(0,len(history)-1):
+            # find the difference between the ith frame and the next
+            deltaN = tuple(np.subtract(history[i+1], history[i]))
+            # add it to the sum
+            deltaSum = tuple(np.add(deltaSum, deltaN))
+        # get the final average
+        deltaSum = tuple(np.divide( deltaSum, (len(history)-1,len(history)-1) ))
     return tuple(np.add(deltaSum, (x, y)))
 
 def main():
