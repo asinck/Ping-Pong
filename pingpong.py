@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import time
 import math
+import time
 
 pi_compatible = False
 try:
@@ -20,6 +21,14 @@ def diffImg(t0, t1, t2):
 prevLocation = None
 positionx = 0
 positiony = 0
+xactuatorPosition = 0
+yactuatorPosition = 0
+Pi_Pins = [35, 36, 37, 38]
+xPositive = 35
+xNegative = 36
+yPositive = 37
+yNegative = 38
+waitTime = 1.0/9.05 #this is seconds to move an inch
 
 
 #this function returns coordinates. if the provided coordinates are
@@ -79,8 +88,9 @@ def setup():
 
     #set up the output pins
     try:
-        GPIO.setup(xpin, GPIO.OUT) 
-        GPIO.setup(ypin, GPIO.OUT)
+        global Pi_Pins
+        for i in Pi_Pins:
+            GPIO.setup(i, GPIO.OUT) 
     except:
         print "Error: Pins failed to initialize."
         global pi_compatible
@@ -95,6 +105,12 @@ def rotateHistory((x, y)):
     if (len(history) > maxHistory):
         history.pop(0)
 
+
+def wait(currentPosition, newPosition):
+    global waitTime
+    distToGoal = currentPosition - newPosition
+    timeToWait = distToGoal * waitTime
+    time.sleep(timeToWait)
 
 #this is the function that will cause the robot to move
 #input: an (x, y) tuple
@@ -118,13 +134,31 @@ def moveRobot((x, y)):
     """
     #find out where the ball is expected to be
     expected = trajectory((x, y))
+    
+    global xPositive, xNegative, yPositive, yNegative
+
     if (pi_compatible):
         #control the robot
+        if (xactuatorPosition < x):
+            GPIO.output(xNegative, GPIO.HIGH)
+            wait(xactuatorPosition, x)
+            GPIO.output(xNegative, GPIO.LOW)
+        elif (xactuatorPosition > x):
+            GPIO.output(xPositive, GPIO.HIGH)
+            wait(xactuatorPosition, x)
+            GPIO.output(xPositive, GPIO.LOW)
+
+        if (yactuatorPosition < y):
+            GPIO.output(yNegative, GPIO.HIGH)
+            wait(yactuatorPosition, y)
+            GPIO.output(yNegative, GPIO.LOW)
+        elif (yactuatorPosition > y):
+            GPIO.output(yPositive, GPIO.HIGH)
+            wait(yactuatorPosition, y)
+            GPIO.output(yPositive, GPIO.LOW)
+            
         
-        pass
     #else, do nothing
-
-
     return expected
 
 
