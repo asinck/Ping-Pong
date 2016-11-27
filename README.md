@@ -21,7 +21,7 @@ The following eight colors are supported:
 Red, orange, and yellow are easily seen, but have a fair amount of noise and overlap.
 Blue and aqua work fairly well.
 Purple and pink detection can depend on the lighting.
-Green color detection doens't work too well, except for light green.
+Green color detection doesn't work too well, except for light green.
 
 Use the first letter of a color to select it for color detection. Pink is selected with 'i'.
 
