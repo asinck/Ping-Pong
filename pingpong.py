@@ -29,7 +29,7 @@ yNegative = 38
 #640 pixels is 6 feet = 62 inches
 ppi = 10.0
 #inches per frame
-ipf = 0.5 
+ipf = 5
 
 # waitTime = 1.0/9.05 #this is seconds to move an inch
 
@@ -115,6 +115,7 @@ def rotateHistory((x, y)):
 #     print timeToWait
 #     #time.sleep(timeToWait)
 
+
 #this is the function that will cause the robot to move
 #input: an (x, y) tuple
 def moveRobot((x, y)):
@@ -173,8 +174,8 @@ def moveRobot((x, y)):
             yactuatorPosition -= ipf
             # print "y+"
             #wait(yactuatorPosition, y)
-            
-        
+        return (xactuatorPosition, yactuatorPosition)
+
     #else, do nothing
     return expected
 
@@ -295,16 +296,29 @@ def main():
             x, y = coordinates(maxLoc)
             #jump = maxLoc
             jump = (x, y)
-    
-        cv.circle(maskedFrame, maxLoc, 4, (0, 255, 0), 5)
-        cv.circle(maskedFrame, jump, 4, (255, 255, 255), 5)
 
+        #this is the area of most motion. it's green.
+        cv.circle(maskedFrame, maxLoc, 4, (0, 255, 0), 5)
+        #this is the area of estimated ball position. it's white.
+        cv.circle(maskedFrame, jump, 4, (255, 255, 255), 5)
+        
 
         #the function call for moving the robot
         #moveRobot(jump)
         #the alternative function call, without denosing
-        moveRobot(maxLoc)
+        (xactuatorPosition, yactuatorPosition) = moveRobot(maxLoc)
+        px, py = int(xactuatorPosition), int(yactuatorPosition)
+        #this is for drawing arms on the screen
         
+        #draw a line along the bottom from under the point the right edge
+        cv.line(maskedFrame, (px, 480),
+                (640, 480), (128, 128, 128), 8)
+        
+        #draw a line from the point to the bottom edge
+        cv.line(maskedFrame, (px, py),
+                (px, 480), (128, 128, 128), 4)
+        
+        cv.circle(maskedFrame, (px, py), 4, (255, 0, 0), 5)
         
         # print "_"*75
         # print "Relevant area 1:", maxLoc
