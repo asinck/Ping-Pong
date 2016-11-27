@@ -19,8 +19,6 @@ def diffImg(t0, t1, t2):
     return cv.bitwise_or(d1, d2)
 
 prevLocation = None
-positionx = 0
-positiony = 0
 xactuatorPosition = 0
 yactuatorPosition = 0
 Pi_Pins = [35, 36, 37, 38]
@@ -28,7 +26,12 @@ xPositive = 35
 xNegative = 36
 yPositive = 37
 yNegative = 38
-waitTime = 1.0/9.05 #this is seconds to move an inch
+#640 pixels is 6 feet = 62 inches
+ppi = 10.0
+#inches per frame
+ipf = 0.5 
+
+# waitTime = 1.0/9.05 #this is seconds to move an inch
 
 
 #this function returns coordinates. if the provided coordinates are
@@ -78,12 +81,12 @@ def scale((x, y)):
 
 #this sets up the raspberry pi
 def setup():
+    global pi_compatible
     #set up the board
     try:
         GPIO.setmode(GPIO.BOARD)
     except:
         print "Error: Board failed to initialize."
-        global pi_compatible
         pi_compatible = False
 
     #set up the output pins
@@ -93,7 +96,6 @@ def setup():
             GPIO.setup(i, GPIO.OUT) 
     except:
         print "Error: Pins failed to initialize."
-        global pi_compatible
         pi_compatible = False
     
 
@@ -106,11 +108,12 @@ def rotateHistory((x, y)):
         history.pop(0)
 
 
-def wait(currentPosition, newPosition):
-    global waitTime
-    distToGoal = currentPosition - newPosition
-    timeToWait = distToGoal * waitTime
-    time.sleep(timeToWait)
+# def wait(currentPosition, newPosition):
+#     global waitTime, ppi
+#     distToGoal = abs(currentPosition - newPosition)
+#     timeToWait = (distToGoal/ppi) * waitTime
+#     print timeToWait
+#     #time.sleep(timeToWait)
 
 #this is the function that will cause the robot to move
 #input: an (x, y) tuple
@@ -134,28 +137,42 @@ def moveRobot((x, y)):
     """
     #find out where the ball is expected to be
     expected = trajectory((x, y))
-    
+    ex, ey = expected[0], expected[1]
+    #get the pin numbers
     global xPositive, xNegative, yPositive, yNegative
+    #get the positions and the inches per frame
+    global xactuatorPosition, yactuatorPosition, ipf
 
+    
     if (pi_compatible):
         #control the robot
-        if (xactuatorPosition < x):
+        if (xactuatorPosition < ex):
             GPIO.output(xNegative, GPIO.HIGH)
-            wait(xactuatorPosition, x)
-            GPIO.output(xNegative, GPIO.LOW)
-        elif (xactuatorPosition > x):
-            GPIO.output(xPositive, GPIO.HIGH)
-            wait(xactuatorPosition, x)
             GPIO.output(xPositive, GPIO.LOW)
+            xactuatorPosition += ipf
+            # print "x--"
+            #wait(xactuatorPosition, x)
+            #GPIO.output(xNegative, GPIO.LOW)
+        elif (xactuatorPosition > ex):
+            GPIO.output(xPositive, GPIO.HIGH)
+            GPIO.output(xNegative, GPIO.LOW)
+            xactuatorPosition -= ipf
+            # print "x+"
+            #wait(xactuatorPosition, x)
+            #GPIO.output(xPositive, GPIO.LOW)
 
-        if (yactuatorPosition < y):
+        if (yactuatorPosition < ey):
             GPIO.output(yNegative, GPIO.HIGH)
-            wait(yactuatorPosition, y)
-            GPIO.output(yNegative, GPIO.LOW)
-        elif (yactuatorPosition > y):
-            GPIO.output(yPositive, GPIO.HIGH)
-            wait(yactuatorPosition, y)
             GPIO.output(yPositive, GPIO.LOW)
+            yactuatorPosition += ipf
+            # print "y--"
+            #wait(yactuatorPosition, y)
+        elif (yactuatorPosition > ey):
+            GPIO.output(yPositive, GPIO.HIGH)
+            GPIO.output(yNegative, GPIO.LOW)
+            yactuatorPosition -= ipf
+            # print "y+"
+            #wait(yactuatorPosition, y)
             
         
     #else, do nothing
@@ -284,7 +301,7 @@ def main():
 
 
         #the function call for moving the robot
-        moveRobot(jump)
+        #moveRobot(jump)
         #the alternative function call, without denosing
         moveRobot(maxLoc)
         
@@ -311,6 +328,7 @@ def main():
         #quit if key is escape
         if key == 27: #this is the code for Esc
             cv.destroyWindow(capture)
+            GPIO.cleanup()
             break    
         #if it's the key for red, green, blue, ...
         elif key > 0 and key < 256 and chr(key) in "rgbapiyo":
