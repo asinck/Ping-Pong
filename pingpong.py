@@ -342,7 +342,8 @@ def main():
         #quit if key is escape
         if key == 27: #this is the code for Esc
             cv.destroyWindow(capture)
-            GPIO.cleanup()
+            if (pi_compatible):
+                GPIO.cleanup()
             break    
         #if it's the key for red, green, blue, ...
         elif key > 0 and key < 256 and chr(key) in "rgbapiyo":
