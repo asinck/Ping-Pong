@@ -38,6 +38,9 @@ if len(failedPackages) > 0:
     print("\nSome packages could not be imported:")
     print(failedPackages)
     print("Please install these packages before continuing.")
+    if ("RPi.GPIO" in failedPackages):
+        print("\nNote: The library for the Raspberry Pi could not be imported,")
+        print("so the program will run in simulation mode.")
     if (failed):
         print("\nNote: Using python 3 may cause import errors. Please")
         print("run this test program again with python 2.7.\n")
